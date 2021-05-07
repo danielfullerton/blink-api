@@ -14,6 +14,8 @@ const verifyEndpoint = (accountId: string, clientId: string) => `/api/v4/account
 const homescreenEndpoint = (accountId: string) => `/api/v3/accounts/${accountId}/homescreen`;
 const armNetworkEndpoint = (accountId: string, networkId: string) => `/api/v1/accounts/${accountId}/networks/${networkId}/state/arm`;
 const disArmNetworkEndpoint = (accountId: string, networkId: string) => `/api/v1/accounts/${accountId}/networks/${networkId}/state/disarm`;
+const armCameraEndpoint = (networkId: string, cameraId: string) => `/network/${networkId}/camera/${cameraId}/enable`;
+const disArmCameraEndpoint = (networkId: string, cameraId: string) => `/network/${networkId}/camera/${cameraId}/disable`;
 
 const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
@@ -115,5 +117,55 @@ export const disArmNetwork = async (name: string) => {
     return makeDisArmNetworkCall(tier, accountId, `${network.id}`, authToken);
   } else {
     throw new Error('network not found');
+  }
+};
+
+const makeDisArmCameraCall = (tier: string, networkId: string, cameraId: string, authToken: string) => {
+  return axios
+    .post(`${HTTPS}${tier}.${BASE_URL}${disArmCameraEndpoint(networkId, `${cameraId}`)}`, {}, {
+      headers: { 'token-auth': authToken }
+    })
+    .then(response => [response.data]);
+}
+
+export const disArmCamera = async (name: string) => {
+  const { cameras, tier, accountId, authToken } = read();
+  const camera = name
+    ? cameras.filter(camera => camera.name === name)?.[0]
+    : ALL_NETWORKS_CONSTANT;
+
+  if (camera === ALL_NETWORKS_CONSTANT) {
+    return Promise.all(cameras.map(camera => {
+      return makeDisArmCameraCall(tier, `${camera.network_id}`, `${camera.id}`, authToken);
+    }));
+  } else if (camera) {
+    return makeDisArmCameraCall(tier, `${camera.network_id}`, `${camera.id}`, authToken);
+  } else {
+    throw new Error('camera not found');
+  }
+};
+
+const makeArmCameraCall = (tier: string, networkId: string, cameraId: string, authToken: string) => {
+  return axios
+    .post(`${HTTPS}${tier}.${BASE_URL}${armCameraEndpoint(networkId, `${cameraId}`)}`, {}, {
+      headers: { 'token-auth': authToken }
+    })
+    .then(response => [response.data]);
+}
+
+export const armCamera = async (name: string) => {
+  const { cameras, networks, tier, accountId, authToken } = read();
+  const camera = name
+    ? cameras.filter(camera => camera.name === name)?.[0]
+    : ALL_NETWORKS_CONSTANT;
+
+  if (camera === ALL_NETWORKS_CONSTANT) {
+    cameras.map(camera => {
+      return makeArmCameraCall(tier, `${camera.network_id}`, `${camera.id}`, authToken);
+    });
+  } else if (camera) {
+    return makeArmCameraCall(tier, `${camera.network_id}`, `${camera.id}`, authToken);
+  } else {
+    throw new Error('camera not found');
   }
 };

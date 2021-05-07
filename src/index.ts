@@ -1,6 +1,6 @@
 import { write } from './lib/data';
 import * as express from 'express';
-import { armNetwork, disArmNetwork, getSysInfo, login, verify } from './service/service';
+import { armCamera, armNetwork, disArmCamera, disArmNetwork, getSysInfo, login, verify } from './service/service';
 
 require('dotenv').config();
 const app = express();
@@ -72,6 +72,42 @@ app.get('/disarm', async (req, res) => {
     return res.status(500).send({
       error: e,
       message: 'failed to disarm network'
+    });
+  }
+});
+
+app.get('/armCamera', async (req, res) => {
+  try {
+    const cameraName = req.query?.camera as string;
+    const response = await armCamera(cameraName);
+    return res.status(200).send({
+      message: 'successfully armed camera',
+      data: {
+        response
+      }
+    });
+  } catch (e) {
+    return res.status(500).send({
+      error: e,
+      message: 'failed to arm camera'
+    });
+  }
+});
+
+app.get('/disArmCamera', async (req, res) => {
+  try {
+    const cameraName = req.query?.camera as string;
+    const response = await disArmCamera(cameraName);
+    return res.status(200).send({
+      message: 'successfully disarmed camera',
+      data: {
+        response
+      }
+    });
+  } catch (e) {
+    return res.status(500).send({
+      error: e,
+      message: 'failed to disarm camera'
     });
   }
 });

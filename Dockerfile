@@ -3,5 +3,4 @@ FROM node:12-alpine
 WORKDIR /usr/app
 COPY ./ ./
 
-RUN ["npm", "start"]
-EXPOSE 8080
+CMD ["npm", "start"]
