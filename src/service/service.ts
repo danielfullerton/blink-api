@@ -4,6 +4,7 @@ import { LoginResponse } from '../types/loginResponse';
 import { read, write } from '../lib/data';
 import { VerifyResponse } from '../types/verifyResponse';
 import { SysInfoResponse } from '../types/sysInfoResponse';
+import * as retry from 'async-retry';
 
 const HTTPS = 'https://'
 const BASE_URL = 'immedia-semi.com';
@@ -71,11 +72,13 @@ export const getSysInfo = async () => {
 };
 
 const makeArmNetworkCall = (tier: string, accountId: string, networkId: string, authToken: string) => {
-  return axios
-    .post(`${HTTPS}${tier}.${BASE_URL}${armNetworkEndpoint(accountId, `${networkId}`)}`, {}, {
-      headers: { 'token-auth': authToken }
-    })
-    .then(response => [response.data]);
+  return retry(bail => {
+    return axios
+      .post(`${HTTPS}${tier}.${BASE_URL}${armNetworkEndpoint(accountId, `${networkId}`)}`, {}, {
+        headers: { 'token-auth': authToken }
+      })
+      .then(response => [response.data]);
+  }, { retries: 3 });
 }
 
 export const armNetwork = async (name: string) => {
@@ -96,11 +99,13 @@ export const armNetwork = async (name: string) => {
 };
 
 const makeDisArmNetworkCall = (tier: string, accountId: string, networkId: string, authToken: string) => {
-  return axios
-    .post(`${HTTPS}${tier}.${BASE_URL}${disArmNetworkEndpoint(accountId, `${networkId}`)}`, {}, {
-      headers: { 'token-auth': authToken }
-    })
-    .then(response => [response.data]);
+  return retry(bail => {
+    return axios
+      .post(`${HTTPS}${tier}.${BASE_URL}${disArmNetworkEndpoint(accountId, `${networkId}`)}`, {}, {
+        headers: { 'token-auth': authToken }
+      })
+      .then(response => [response.data]);
+  }, { retries: 3 });
 }
 
 export const disArmNetwork = async (name: string) => {
@@ -121,11 +126,13 @@ export const disArmNetwork = async (name: string) => {
 };
 
 const makeDisArmCameraCall = (tier: string, networkId: string, cameraId: string, authToken: string) => {
-  return axios
-    .post(`${HTTPS}${tier}.${BASE_URL}${disArmCameraEndpoint(networkId, `${cameraId}`)}`, {}, {
-      headers: { 'token-auth': authToken }
-    })
-    .then(response => [response.data]);
+  return retry(bail => {
+    return axios
+      .post(`${HTTPS}${tier}.${BASE_URL}${disArmCameraEndpoint(networkId, `${cameraId}`)}`, {}, {
+        headers: { 'token-auth': authToken }
+      })
+      .then(response => [response.data]);
+  }, { retries: 3 });
 }
 
 export const disArmCamera = async (name: string) => {
@@ -146,11 +153,13 @@ export const disArmCamera = async (name: string) => {
 };
 
 const makeArmCameraCall = (tier: string, networkId: string, cameraId: string, authToken: string) => {
-  return axios
-    .post(`${HTTPS}${tier}.${BASE_URL}${armCameraEndpoint(networkId, `${cameraId}`)}`, {}, {
-      headers: { 'token-auth': authToken }
-    })
-    .then(response => [response.data]);
+  return retry(bail => {
+    return axios
+      .post(`${HTTPS}${tier}.${BASE_URL}${armCameraEndpoint(networkId, `${cameraId}`)}`, {}, {
+        headers: { 'token-auth': authToken }
+      })
+      .then(response => [response.data]);
+  }, { retries: 3 })
 }
 
 export const armCamera = async (name: string) => {
