@@ -121,5 +121,5 @@ if (process.env.FRESH_START) {
 }
 
 app.listen(8080, () => {
-  console.log('listening on 8080');
+  console.log('listening on port 8080');
 });
