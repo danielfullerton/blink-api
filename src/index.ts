@@ -1,10 +1,8 @@
 import { write } from './lib/data';
-
-require('dotenv').config();
-import axios from 'axios';
-import to from 'await-to-js';
 import * as express from 'express';
 import { armNetwork, disArmNetwork, getSysInfo, login, verify } from './service/service';
+
+require('dotenv').config();
 const app = express();
 
 app.get('/login', async (req, res) => {
