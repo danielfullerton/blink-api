@@ -1,0 +1,10 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "target": "ES5",
+    "outDir": "dist",
+    "sourceMap": true,
+    "allowJs": false,
+    "lib": ["ES2015", "dom"]
+  }
+}
