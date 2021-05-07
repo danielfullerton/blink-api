@@ -11,7 +11,7 @@ const DEFAULT_SUB_DOMAIN = 'rest-prod';
 
 const LOGIN_ENDPOINT = '/api/v5/account/login';
 const verifyEndpoint = (accountId: string, clientId: string) => `/api/v4/account/${accountId}/client/${clientId}/pin/verify`;
-const homescreenEndpoint = (accountId: string) => `/api/v3/accounts/${accountId}/homescreen`;
+const homeScreenEndpoint = (accountId: string) => `/api/v3/accounts/${accountId}/homescreen`;
 const armNetworkEndpoint = (accountId: string, networkId: string) => `/api/v1/accounts/${accountId}/networks/${networkId}/state/arm`;
 const disArmNetworkEndpoint = (accountId: string, networkId: string) => `/api/v1/accounts/${accountId}/networks/${networkId}/state/disarm`;
 const armCameraEndpoint = (networkId: string, cameraId: string) => `/network/${networkId}/camera/${cameraId}/enable`;
@@ -58,7 +58,7 @@ export const verify = async (pin: string) => {
 export const getSysInfo = async () => {
   const { authToken, tier, accountId } = read();
   const response = await axios
-    .get(`${HTTPS}${tier}.${BASE_URL}${homescreenEndpoint(accountId)}`, {
+    .get(`${HTTPS}${tier}.${BASE_URL}${homeScreenEndpoint(accountId)}`, {
       headers: { 'token-auth': authToken }
     })
     .then(response => response.data as SysInfoResponse);

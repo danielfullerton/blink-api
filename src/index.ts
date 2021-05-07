@@ -1,8 +1,8 @@
+require('dotenv').config();
 import { write } from './lib/data';
 import * as express from 'express';
 import { armCamera, armNetwork, disArmCamera, disArmNetwork, getSysInfo, login, verify } from './service/service';
 
-require('dotenv').config();
 const app = express();
 
 app.get('/login', async (req, res) => {
