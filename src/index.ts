@@ -76,6 +76,10 @@ app.get('/disarm', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  return res.status(200).send('OKIE');
+});
+
 if (process.env.FRESH_START) {
   write({}, true);
 }
