@@ -23,13 +23,37 @@ const PASSWORD = process.env.PASSWORD;
 
 const ALL_NETWORKS_CONSTANT = "ALL_NETWORKS_CONSTANT";
 
+const getUniqueId = () => {
+  if (process.env.RANDOM_IDS) {
+    return v4();
+  } else {
+    return 'blink-api-js';
+  }
+}
+
+const getDeviceId = () => {
+  if (process.env.RANDOM_IDS) {
+    return v4();
+  } else {
+    return 'blink-api-js-device';
+  }
+}
+
+const getClientName = () => {
+  if (process.env.RANDOM_IDS) {
+    return v4();
+  } else {
+    return 'blink-api-js-client';
+  }
+}
+
 export const login = async () => {
   const data = {
     email: EMAIL,
     password: PASSWORD,
-    unique_id: v4(),
-    device_identifier: v4(),
-    client_name: v4(),
+    unique_id: getUniqueId(),
+    device_identifier: getDeviceId(),
+    client_name: getClientName(),
     reauth: true
   };
 
@@ -70,6 +94,18 @@ export const getSysInfo = async () => {
     syncModules: response.sync_modules
   });
 };
+
+export const retryAuthWhenFails = async (fn: () => Promise<any>) => {
+  try {
+    return fn();
+  } catch (e) {
+    console.log('operation failed; retrying login to see if it fixes the issue');
+    const loginResponse = await login();
+    console.log('login refresh response: ', loginResponse);
+    console.log('retrying failed operation now that login has been refreshed');
+    return fn();
+  }
+}
 
 const makeArmNetworkCall = (tier: string, accountId: string, networkId: string, authToken: string) => {
   return retry(bail => {

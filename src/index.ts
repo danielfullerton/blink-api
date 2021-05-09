@@ -1,7 +1,16 @@
 require('dotenv').config();
 import { write } from './lib/data';
 import * as express from 'express';
-import { armCamera, armNetwork, disArmCamera, disArmNetwork, getSysInfo, login, verify } from './service/service';
+import {
+  armCamera,
+  armNetwork,
+  disArmCamera,
+  disArmNetwork,
+  getSysInfo,
+  login,
+  retryAuthWhenFails,
+  verify
+} from './service/service';
 
 const app = express();
 
@@ -43,7 +52,7 @@ app.get('/verify', async (req, res) => {
 app.get('/arm', async (req, res) => {
   try {
     const networkName = req.query?.network as string;
-    const response = await armNetwork(networkName);
+    const response = await retryAuthWhenFails(() => armNetwork(networkName));
     return res.status(200).send({
       message: 'successfully armed network',
       data: {
@@ -61,7 +70,7 @@ app.get('/arm', async (req, res) => {
 app.get('/disarm', async (req, res) => {
   try {
     const networkName = req.query?.network as string;
-    const response = await disArmNetwork(networkName);
+    const response = await retryAuthWhenFails(() => disArmNetwork(networkName));
     return res.status(200).send({
       message: 'successfully disarmed network',
       data: {
@@ -79,7 +88,7 @@ app.get('/disarm', async (req, res) => {
 app.get('/armCamera', async (req, res) => {
   try {
     const cameraName = req.query?.camera as string;
-    const response = await armCamera(cameraName);
+    const response = await retryAuthWhenFails(() => armCamera(cameraName));
     return res.status(200).send({
       message: 'successfully armed camera',
       data: {
@@ -97,7 +106,7 @@ app.get('/armCamera', async (req, res) => {
 app.get('/disArmCamera', async (req, res) => {
   try {
     const cameraName = req.query?.camera as string;
-    const response = await disArmCamera(cameraName);
+    const response = await retryAuthWhenFails(() => disArmCamera(cameraName));
     return res.status(200).send({
       message: 'successfully disarmed camera',
       data: {
