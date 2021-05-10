@@ -1,125 +1,32 @@
+import { retryAuthWhenFails } from './lib/auth';
+
 require('dotenv').config();
 import { write } from './lib/data';
 import * as express from 'express';
 import {
-  armCamera,
   armNetwork,
-  disArmCamera,
-  disArmNetwork,
-  getSysInfo,
-  login,
-  retryAuthWhenFails,
-  verify
-} from './service/service';
+  disArmNetwork
+} from './service/networkService';
+import { getSysInfo, login, verify } from './service/authService';
+import { armCamera, disArmCamera } from './service/cameraService';
+import { loginHandler, verifyHandler } from './handlers/authHandler';
+import { armNetworkHandler, disarmNetworkHandler } from './handlers/networkHandler';
+import { armCameraHandler, disarmCameraHandler } from './handlers/armCameraHandler';
+import { init } from './lib/aws';
 
 const app = express();
 
-app.get('/login', async (req, res) => {
-  try {
-    const response = await login();
-    return res.status(200).send({
-      message: 'successfully logged in; check for verification code on phone',
-      data: response
-    });
-  } catch (e) {
-    return res.status(500).send({
-      error: e,
-      message: 'failed to log in'
-    })
-  }
-});
+app.get('/login', loginHandler);
 
-app.get('/verify', async (req, res) => {
-  try {
-    const pin = req.query.pin as string;
-    const verifyResponse = await verify(pin);
-    const sysInfo = await getSysInfo();
-    return res.status(200).send({
-      message: 'successfully verified pin and retrieved network data',
-      data: {
-        verifyResponse,
-        sysInfo
-      }
-    })
-  } catch (e) {
-    return res.status(500).send({
-      error: e,
-      message: 'failed to verify pin or get network data'
-    });
-  }
-});
+app.get('/verify', verifyHandler);
 
-app.get('/arm', async (req, res) => {
-  try {
-    const networkName = req.query?.network as string;
-    const response = await retryAuthWhenFails(() => armNetwork(networkName));
-    return res.status(200).send({
-      message: 'successfully armed network',
-      data: {
-        response
-      }
-    });
-  } catch (e) {
-    return res.status(500).send({
-      error: e,
-      message: 'failed to arm network'
-    });
-  }
-});
+app.get('/arm', armNetworkHandler);
 
-app.get('/disarm', async (req, res) => {
-  try {
-    const networkName = req.query?.network as string;
-    const response = await retryAuthWhenFails(() => disArmNetwork(networkName));
-    return res.status(200).send({
-      message: 'successfully disarmed network',
-      data: {
-        response
-      }
-    });
-  } catch (e) {
-    return res.status(500).send({
-      error: e,
-      message: 'failed to disarm network'
-    });
-  }
-});
+app.get('/disarm', disarmNetworkHandler);
 
-app.get('/armCamera', async (req, res) => {
-  try {
-    const cameraName = req.query?.camera as string;
-    const response = await retryAuthWhenFails(() => armCamera(cameraName));
-    return res.status(200).send({
-      message: 'successfully armed camera',
-      data: {
-        response
-      }
-    });
-  } catch (e) {
-    return res.status(500).send({
-      error: e,
-      message: 'failed to arm camera'
-    });
-  }
-});
+app.get('/armCamera', armCameraHandler);
 
-app.get('/disArmCamera', async (req, res) => {
-  try {
-    const cameraName = req.query?.camera as string;
-    const response = await retryAuthWhenFails(() => disArmCamera(cameraName));
-    return res.status(200).send({
-      message: 'successfully disarmed camera',
-      data: {
-        response
-      }
-    });
-  } catch (e) {
-    return res.status(500).send({
-      error: e,
-      message: 'failed to disarm camera'
-    });
-  }
-});
+app.get('/disArmCamera', disarmCameraHandler);
 
 app.get('/', (req, res) => {
   return res.status(200).send('OKIE');
@@ -128,6 +35,8 @@ app.get('/', (req, res) => {
 if (process.env.FRESH_START) {
   write({}, true);
 }
+
+init();
 
 app.listen(8080, () => {
   console.log('listening on port 8080');
