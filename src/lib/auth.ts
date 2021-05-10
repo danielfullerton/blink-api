@@ -12,24 +12,31 @@ export const retryAuthWhenFails = async (fn: () => Promise<any>) => {
     return fn();
   }
 }
+
+const uniqueId = v4();
+
 export const getUniqueId = () => {
   if (process.env.RANDOM_IDS) {
     return v4();
   } else {
-    return 'blink-api-js';
+    return uniqueId;
   }
 }
+
+const deviceId = v4();
 export const getDeviceId = () => {
   if (process.env.RANDOM_IDS) {
     return v4();
   } else {
-    return 'blink-api-js-device';
+    return deviceId;
   }
 }
+
+const clientName = v4();
 export const getClientName = () => {
   if (process.env.RANDOM_IDS) {
     return v4();
   } else {
-    return 'blink-api-js-client';
+    return clientName;
   }
 }
